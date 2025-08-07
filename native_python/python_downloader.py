@@ -82,7 +82,7 @@ def download(manifest):
         file_path = file["folder"]
         file_id = file["id"]
         file_name = file["name"]
-        download_dxfile(dxid=file_id,filename=ensure_file_exists(file_path,file_name),project=project_name,describe_output=True)
+        download_dxfile(dxid=file_id,filename=ensure_file_exists(file_path,file_name),project=project_name)
 
     return f"{manifest} success"
 
@@ -116,8 +116,8 @@ def main():
             x['name'] = fname + "_" + x['id'] + fext
 
     manifest_files = []
-    if args.split > 0:
-        manifest_files= write_split_manifest(args.output_file, manifest,args.split)
+    if args.split != 0:
+        manifest_files = write_split_manifest(args.output_file, manifest, args.split)
     else:
         manifest_files = write_manifest_to_file(args.output_file, manifest)
 
