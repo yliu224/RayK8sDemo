@@ -5,8 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY counter.py .
-COPY main.py .
+COPY ./ .
 
 RUN pwd
 RUN ls
