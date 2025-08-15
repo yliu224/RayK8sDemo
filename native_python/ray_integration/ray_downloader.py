@@ -16,7 +16,7 @@ from dxpy.utils.resolver import resolve_existing_path
 USING_PYTHON2 = True if sys.version_info < (3, 0) else False
 AUTH_INFO = {
         "auth_token_type": "Bearer",
-        "auth_token": "****"
+        "auth_token": "***"
     }
 
 def write_manifest_to_file(outfile, manifest):
@@ -141,6 +141,7 @@ def main():
             with bz2.open(mf, 'rt') as f:
                 data = json.load(f)
                 futures.append(download.remote(mf,data))
+
         results = ray.get(futures)
         print(results)
 
