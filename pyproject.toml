@@ -1,0 +1,33 @@
+[tool.black]
+line-length = 120
+target-version = ["py39"]
+include = "demo/"
+
+[tool.isort]
+profile = "black"
+line_length = 120
+src_paths = ["demo"]
+
+[tool.pylint]
+# Pylint reads config from pyproject.toml since v2.5+
+[tool.pylint.'MAIN']
+init-hook = 'import sys; sys.path.append("demo")'
+recursive = true
+jobs = 0
+disable = ["C0114","C0115","C0116","W0511","R0903"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+files = ["demo"]
+
+[[tool.mypy.overrides]]
+module = ["dxpy.*"]
+ignore_missing_imports = true
+
+[tool.flake8]
+max-line-length = 120
+extend-exclude = []
+extend-select = []
+# restrict linting to /demo
+paths = ["demo"]

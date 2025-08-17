@@ -1,0 +1,6 @@
+black
+pylint
+isort
+flake8
+mypy
+Flake8-pyproject
