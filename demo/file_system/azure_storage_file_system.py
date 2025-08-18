@@ -1,20 +1,15 @@
 import os
-from typing import List, NewType
+from typing import List
 
 from azure.storage.blob import BlobProperties, BlobServiceClient
-from injector import inject
 
 from demo.file_system.file_info import FileInfo
 from demo.file_system.file_system import FileSystem
 
-Container = NewType("Container", str)
-BlobClient = NewType("BlobClient", BlobServiceClient)
-
 
 class AzureStorageFileSystem(FileSystem):
 
-    @inject
-    def __init__(self, blob_client: BlobClient, container: Container):
+    def __init__(self, blob_client: BlobServiceClient, container: str):
         super().__init__()
         self.__blob_service_client = blob_client
         self.__container_client = self.__blob_service_client.get_container_client(container)
@@ -67,3 +62,6 @@ class AzureStorageFileSystem(FileSystem):
         for f in file_names:
             result &= self.upload_file(os.path.join(source_folder, f), f"{destination_path}/{f}")
         return result
+
+    def get_file_system_name(self) -> str:
+        return f"{self.__container_client.container_name}@{self.__container_client.account_name}"

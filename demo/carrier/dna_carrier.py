@@ -1,4 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import NewType
+
+from demo.file_system.file_system import FileSystem
+
+SourceFileSystem = NewType("SourceFileSystem", FileSystem)
+DestinationFileSystem = NewType("DestinationFileSystem", FileSystem)
 
 
 class DNACarrier(ABC):
@@ -15,7 +21,6 @@ class DNACarrier(ABC):
         source_folder: str,
         dest_folder: str,
         recursive: bool = True,
-        overwrite: bool = False,
         # TODO: Add filter interface if necessary
     ) -> None:
         """
@@ -29,8 +34,5 @@ class DNACarrier(ABC):
             The destination location.
         recursive : bool
             Controlling if the look-up will be recursive or not
-        overwrite : bool
-            If False (default), raise FileExistsError when dest exists.
-            If True, replace the destination if it exists.
         """
         raise NotImplementedError()

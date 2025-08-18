@@ -67,3 +67,14 @@ class FileSystem(ABC):
         Returns:
             bool: True if successful, False otherwise.
         """
+
+    @abstractmethod
+    def get_file_system_name(self) -> str:
+        """
+        Get the name of the file system.
+
+        Args:
+
+        Returns:
+            str: File system name.
+        """

@@ -1,24 +1,20 @@
 import os
-from typing import Any, List, NewType
+from typing import Any, List
 
 import dxpy
 from dxpy.bindings.dxfile_functions import download_dxfile
-from injector import inject
 
 from demo.file_system.file_info import FileInfo
 from demo.file_system.file_system import FileSystem
 
-Project = NewType("Project", str)
-Token = NewType("Token", str)
-
 
 class DNANexusFileSystem(FileSystem):
-    @inject
-    def __init__(self, project: Project, token: Token):
+    def __init__(self, project: str, token: str):
         super().__init__()
         auth_token = {"auth_token_type": "Bearer", "auth_token": token}
         dxpy.set_security_context(auth_token)
         self.__project_id = dxpy.find_one_project(level="VIEW", name=project, name_mode="regexp")["id"]
+        self.__project_name = project
 
     def list_folder(self, folder_path: str, recursive: bool = True) -> List[FileInfo]:
         """
@@ -54,6 +50,9 @@ class DNANexusFileSystem(FileSystem):
 
     def upload_files(self, source_folder: str, destination_path: str) -> bool:
         raise NotImplementedError("We don't support DNA Nexus upload for now")
+
+    def get_file_system_name(self) -> str:
+        return self.__project_name
 
     @staticmethod
     def __extract_file_info(f_details: Any) -> FileInfo:

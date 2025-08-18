@@ -1,30 +1,26 @@
+import logging
+
 from injector import Injector
 
-from demo.file_system.azure_storage_file_system import AzureStorageFileSystem, Container
-from demo.file_system.dna_nexus_file_system import DNANexusFileSystem, Project, Token
+from demo.carrier.dna_local_carrier import DNALocalCarrier
+from demo.modules.carrier_module import CarrierModule
 from demo.modules.file_system_module import FileSystemModule
+
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("azure.core").setLevel(logging.WARNING)
 
 
 def main() -> None:
     injector = Injector(
         [
             FileSystemModule(
-                connection_str="",
-                project=Project(""),
-                token=Token(""),
-                container=Container(""),
-            )
+                stage=FileSystemModule.LANDING,
+            ),
+            CarrierModule(mode=CarrierModule.LOCAL),
         ]
     )
-    dna_nexus = injector.get(DNANexusFileSystem)
-    az_storage = injector.get(AzureStorageFileSystem)
-
-    files = dna_nexus.list_folder("/resources")
-    print(f"Listed {len(files)} files")
-    dna_nexus.download_files(files, "/tmp/data/resources")
-    print(f"Download {len(files)} files to /tmp/data/resources")
-    az_storage.upload_files("/tmp/data/resources", "test/")
-    print(f"Upload {len(files)} files to test/")
+    carrier = injector.get(DNALocalCarrier)
+    carrier.move_folder("/resources", "test/")
 
 
 if __name__ == "__main__":
