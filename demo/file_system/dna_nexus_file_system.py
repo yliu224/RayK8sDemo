@@ -11,8 +11,8 @@ from demo.file_system.file_system import FileSystem
 class DNANexusFileSystem(FileSystem):
     def __init__(self, project: str, token: str):
         super().__init__()
-        auth_token = {"auth_token_type": "Bearer", "auth_token": token}
-        dxpy.set_security_context(auth_token)
+        self.__auth_token = {"auth_token_type": "Bearer", "auth_token": token}
+        dxpy.set_security_context(self.__auth_token)
         self.__project_id = dxpy.find_one_project(level="VIEW", name=project, name_mode="regexp")["id"]
         self.__project_name = project
 
@@ -36,6 +36,7 @@ class DNANexusFileSystem(FileSystem):
         return [self.__extract_file_info(obj["describe"]) for obj in list(objs)]
 
     def download_file(self, file_info: FileInfo, destination: str) -> bool:
+        dxpy.set_security_context(self.__auth_token)
         os.makedirs(destination, exist_ok=True)
         download_dxfile(
             dxid=file_info.file_id,

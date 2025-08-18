@@ -3,7 +3,7 @@ kind: RayJob
 metadata:
   name: rayjob-sample-shutdown-1
 spec:
-  entrypoint: python /app/native_python/ray_integration/ray_downloader.py "GxS_demo:data/GVCF" --recursive --output_file "test.manifest.json.bz2" --split 1 -d
+  entrypoint: python /app/main.py
 
   # shutdownAfterJobFinishes specifies whether the RayCluster should be deleted after the RayJob finishes. Default is false.
 #  shutdownAfterJobFinishes: true

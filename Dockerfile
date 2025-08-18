@@ -5,7 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY native_python/ray_integration/ray_downloader.py native_python/ray_integration/
+COPY demo/ demo/
+COPY main.py main.py
 
-RUN pwd
-RUN ls

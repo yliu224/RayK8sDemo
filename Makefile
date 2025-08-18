@@ -15,3 +15,6 @@ check:
 	flake8
 	pylint demo
 	mypy
+
+deploy_ray:
+	docker build -t ray-actor-example:latest . && kubectl apply -f k8s/ray-job.yaml

@@ -2,7 +2,7 @@ import logging
 
 from injector import Injector
 
-from demo.carrier.dna_local_carrier import DNALocalCarrier
+from demo.carrier.dna_ray_carrier import DNARayCarrier
 from demo.modules.carrier_module import CarrierModule
 from demo.modules.file_system_module import FileSystemModule
 
@@ -16,11 +16,11 @@ def main() -> None:
             FileSystemModule(
                 stage=FileSystemModule.LANDING,
             ),
-            CarrierModule(mode=CarrierModule.LOCAL),
+            CarrierModule(mode=CarrierModule.RAY),
         ]
     )
-    carrier = injector.get(DNALocalCarrier)
-    carrier.move_folder("/resources", "test/")
+    carrier = injector.get(DNARayCarrier)
+    carrier.move_folder("/resources", "test/ray")
 
 
 if __name__ == "__main__":
