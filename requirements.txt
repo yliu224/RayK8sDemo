@@ -1,2 +1,5 @@
 ray
 dxpy
+azure-storage-blob
+azure-identity
+injector

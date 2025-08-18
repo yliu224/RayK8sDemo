@@ -2,6 +2,15 @@
 line-length = 120
 target-version = ["py39"]
 include = "demo/"
+extend-exclude = '''
+(
+    __pycache__           # ignore cache dirs
+  | \.pyc$                # ignore compiled files
+  | __init__\.py          # ignore __init__.py
+  | __init__\.cpython.*   # ignore compiled __init__ variants
+)
+'''
+
 
 [tool.isort]
 profile = "black"
@@ -10,6 +19,8 @@ src_paths = ["demo"]
 
 [tool.pylint]
 # Pylint reads config from pyproject.toml since v2.5+
+[tool.pylint.'FORMAT']
+max-line-length = 120
 [tool.pylint.'MAIN']
 init-hook = 'import sys; sys.path.append("demo")'
 recursive = true
@@ -20,6 +31,14 @@ disable = ["C0114","C0115","C0116","W0511","R0903"]
 python_version = "3.9"
 strict = true
 files = ["demo"]
+exclude = '''
+(
+    __pycache__
+  | \.pyc$
+  | __init__\.py
+  | __init__\.cpython.*
+)
+'''
 
 [[tool.mypy.overrides]]
 module = ["dxpy.*"]

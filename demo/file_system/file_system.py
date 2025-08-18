@@ -22,25 +22,45 @@ class FileSystem(ABC):
         """
 
     @abstractmethod
-    def download_file(self, file_path: str, destination: str) -> bool:
+    def download_file(self, file_info: FileInfo, destination: str) -> bool:
         """
         Download a file from the file system to a destination.
 
         Args:
-            file_path (str): Path to the source file.
+            file_info (str): Source file metadata.
             destination (str): Destination path for the downloaded file.
 
         Returns:
             bool: True if successful, False otherwise.
         """
 
+    def download_files(self, files: List[FileInfo], destination: str) -> bool:
+        result = True
+        for f in files:
+            result &= self.download_file(f, destination)
+        return result
+
     @abstractmethod
-    def upload_file(self, source_path: str, destination_path: str = "") -> bool:
+    def upload_file(self, source_path: str, destination_path: str) -> bool:
         """
         Upload a file to the file system.
 
         Args:
             source_path (str): Path to the source file to upload.
+            destination_path (str): Destination path in the file system.
+                                  If empty, uses the source filename.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+
+    @abstractmethod
+    def upload_files(self, source_folder: str, destination_path: str) -> bool:
+        """
+        Upload a file to the file system.
+
+        Args:
+            source_folder (str): Path to the source file to upload.
             destination_path (str): Destination path in the file system.
                                   If empty, uses the source filename.
 

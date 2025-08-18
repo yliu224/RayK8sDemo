@@ -1,30 +1,14 @@
 from dataclasses import dataclass, field
 
 
-@dataclass
+@dataclass(frozen=True)
 class FileInfo:
-    # private fields
-    __file_name: str = field(repr=False)
-    __file_size: int = field(repr=False)
-    __file_path: str = field(repr=False)
+    file_name: str
+    file_size: int
+    folder: str
+    file_id: str
+    file_path: str = field(init=False)
 
-    # file_name property
-    @property
-    def file_name(self) -> str:
-        return self.__file_name
-
-    # file_size property
-    @property
-    def file_size(self) -> int:
-        return self.__file_size
-
-    @file_size.setter
-    def file_size(self, value: int) -> None:
-        if value < 0:
-            raise ValueError("file_size must be non-negative")
-        self.__file_size = value
-
-    # file_path property
-    @property
-    def file_path(self) -> str:
-        return self.__file_path
+    def __post_init__(self) -> None:
+        # Compute file_path after the object is created
+        object.__setattr__(self, "file_path", f"{self.folder}/{self.file_name}")
