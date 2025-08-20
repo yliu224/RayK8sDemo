@@ -2,6 +2,8 @@ from injector import Module, inject, provider, singleton
 
 from demo.carrier.dna_carrier import DestinationFileSystem, DNACarrier, SourceFileSystem
 from demo.carrier.dna_local_carrier import DNALocalCarrier
+from demo.carrier.dna_ray_carrier import DNARayCarrier
+from demo.carrier.dna_spark_carrier import DNASparkCarrier
 
 
 class CarrierModule(Module):
@@ -18,4 +20,8 @@ class CarrierModule(Module):
     def provide_carrier(self, source: SourceFileSystem, dest: DestinationFileSystem) -> DNACarrier:
         if self.__mode == self.LOCAL:
             return DNALocalCarrier(source, dest)
+        if self.__mode == self.SPARK:
+            return DNASparkCarrier(source, dest)
+        if self.__mode == self.RAY:
+            return DNARayCarrier(source, dest)
         raise RuntimeError(f"{self.__mode} is not a valid mode")

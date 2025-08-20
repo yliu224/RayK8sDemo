@@ -1,5 +1,6 @@
 import logging
 import os.path
+import shutil
 import socket
 
 import ray
@@ -29,12 +30,13 @@ class DNARayCarrier(DNACarrier):
     def remote_move(self, source_file: FileInfo, dest_folder: str) -> bool:
         logging.basicConfig(level=logging.INFO)
         logging.getLogger("azure.core").setLevel(logging.WARNING)
+        tmp_folder = self.generate_tmp_folder()
         try:
             host_name = socket.gethostname()
-            tmp_file_path = os.path.join(self.tmp_folder, source_file.file_name)
+            tmp_file_path = os.path.join(tmp_folder, source_file.file_name)
             dest_file_path = os.path.join(dest_folder, source_file.file_name)
 
-            self.source.download_file(source_file, self.tmp_folder)
+            self.source.download_file(source_file, tmp_folder)
             LOG.info(f"Download {self.source_name}:{source_file.file_path} to {host_name}:{tmp_file_path}")
 
             self.dest.upload_file(tmp_file_path, dest_file_path)
@@ -43,3 +45,6 @@ class DNARayCarrier(DNACarrier):
         except Exception as e:
             LOG.exception(e)
             return False
+        finally:
+            shutil.rmtree(tmp_folder)
+            LOG.info(f"Cleaned up {tmp_folder}")

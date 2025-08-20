@@ -24,7 +24,6 @@ class DNACarrier(ABC):
         self.__dest = dest
         self.__source_name = self.__source.get_file_system_name()
         self.__dest_name = self.__dest.get_file_system_name()
-        self.__tmp_folder = f"/tmp/{uuid.uuid4().hex}"
 
     @abstractmethod
     def move_folder(
@@ -64,6 +63,6 @@ class DNACarrier(ABC):
     def dest_name(self) -> str:
         return self.__dest_name
 
-    @property
-    def tmp_folder(self) -> str:
-        return self.__tmp_folder
+    @staticmethod
+    def generate_tmp_folder() -> str:
+        return f"/tmp/{uuid.uuid4().hex}"
