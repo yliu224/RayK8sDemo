@@ -8,6 +8,7 @@ extend-exclude = '''
   | \.pyc$                # ignore compiled files
   | __init__\.py          # ignore __init__.py
   | __init__\.cpython.*   # ignore compiled __init__ variants
+  | .*\.conf$
 )
 '''
 

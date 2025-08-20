@@ -22,7 +22,9 @@ class DNASparkCarrier(DNACarrier):
             try:
                 file_info = FileInfo.from_json(row.FileInfo)
                 self.source.download_file(file_info, tmp_folder)
-                self.dest.upload_file(os.path.join(tmp_folder, file_info.file_name), dest_folder)
+                self.dest.upload_file(
+                    os.path.join(tmp_folder, file_info.file_name), os.path.join(dest_folder, file_info.file_name)
+                )
                 return Row(Message="True")
             except Exception as e:
                 LOG.exception(e)

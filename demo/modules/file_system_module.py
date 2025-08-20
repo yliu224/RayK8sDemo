@@ -1,9 +1,10 @@
-from typing import Optional, cast
+from typing import cast
 
 from azure.storage.blob import BlobServiceClient
 from injector import Module, inject, provider, singleton
 
 from demo.carrier.dna_carrier import DestinationFileSystem, SourceFileSystem
+from demo.config.stage.stage_metadata import StageMetadata
 from demo.file_system.azure_storage_file_system import AzureStorageFileSystem
 from demo.file_system.dna_nexus_file_system import DNANexusFileSystem
 
@@ -13,23 +14,14 @@ class FileSystemModule(Module):
     DISPATCH = "dispatch"
     EMBASSY = "embassy"
 
-    def __init__(
-        self,
-        stage: str,
-        source_connection_str: Optional[str] = None,
-        destination_connection_str: Optional[str] = None,
-        project: Optional[str] = None,
-        token: Optional[str] = None,
-        source_container: Optional[str] = None,
-        destination_container: Optional[str] = None,
-    ):
-        self.__source_connection_str = source_connection_str
-        self.__destination_connection_str = destination_connection_str
-        self.__project = project
-        self.__token = token
-        self.__source_container = source_container
-        self.__destination_container = destination_container
-        self.__stage = stage
+    def __init__(self, stage_metadata: StageMetadata):
+        self.__source_connection_str = stage_metadata.source_connection_str
+        self.__destination_connection_str = stage_metadata.destination_connection_str
+        self.__project = stage_metadata.project
+        self.__token = stage_metadata.token
+        self.__source_container = stage_metadata.source_container
+        self.__destination_container = stage_metadata.destination_container
+        self.__stage = stage_metadata.stage
 
     @singleton
     @provider
