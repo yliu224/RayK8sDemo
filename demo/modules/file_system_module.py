@@ -1,10 +1,13 @@
 from typing import cast
 
+from azure.core.credentials import TokenCredential
+from azure.identity import ManagedIdentityCredential
 from azure.storage.blob import BlobServiceClient
-from injector import Module, inject, provider, singleton
+from injector import Module, provider, singleton
 
 from demo.carrier.dna_carrier import DestinationFileSystem, SourceFileSystem
 from demo.config.stage.stage_metadata import StageMetadata
+from demo.config.stage.storage_account_metadata import StorageAccountMetadata
 from demo.file_system.azure_storage_file_system import AzureStorageFileSystem
 from demo.file_system.dna_nexus_file_system import DNANexusFileSystem
 
@@ -15,41 +18,54 @@ class FileSystemModule(Module):
     EMBASSY = "embassy"
 
     def __init__(self, stage_metadata: StageMetadata):
-        self.__source_connection_str = stage_metadata.source_connection_str
-        self.__destination_connection_str = stage_metadata.destination_connection_str
+        self.__source_storage_account_metadata = stage_metadata.source_storage_account
         self.__project = stage_metadata.project
         self.__token = stage_metadata.token
-        self.__source_container = stage_metadata.source_container
-        self.__destination_container = stage_metadata.destination_container
+        self.__dest_storage_account_metadata = stage_metadata.dest_storage_account
         self.__stage = stage_metadata.stage
 
     @singleton
     @provider
-    @inject
     def provide_source_file_system(self) -> SourceFileSystem:
         if self.__stage == self.LANDING:
             assert self.__project is not None
             assert self.__token is not None
             return cast(SourceFileSystem, DNANexusFileSystem(self.__project, self.__token))
 
-        assert self.__source_container is not None
-        assert self.__source_connection_str is not None
+        assert self.__source_storage_account_metadata is not None
+        assert self.__source_storage_account_metadata.container is not None
         return cast(
             SourceFileSystem,
             AzureStorageFileSystem(
-                BlobServiceClient.from_connection_string(self.__source_connection_str), self.__source_container
+                self.__provide_storage_account(self.__source_storage_account_metadata),
+                self.__source_storage_account_metadata.container,
             ),
         )
 
     @singleton
     @provider
     def provide_destination_file_system(self) -> DestinationFileSystem:
-        assert self.__destination_container is not None
-        assert self.__destination_connection_str is not None
+        assert self.__dest_storage_account_metadata is not None
+        assert self.__dest_storage_account_metadata.container is not None
         return cast(
             DestinationFileSystem,
             AzureStorageFileSystem(
-                BlobServiceClient.from_connection_string(self.__destination_connection_str),
-                self.__destination_container,
+                self.__provide_storage_account(self.__dest_storage_account_metadata),
+                self.__dest_storage_account_metadata.container,
             ),
         )
+
+    @staticmethod
+    def __provide_storage_account(metadata: StorageAccountMetadata) -> BlobServiceClient:
+        if metadata:
+            if metadata.connection_str:
+                return BlobServiceClient.from_connection_string(metadata.connection_str)
+            if metadata.storage_account_name and metadata.client_id and metadata.tenant_id:
+                return BlobServiceClient(
+                    account_url=f"https://{metadata.storage_account_name}.blob.core.windows.net",
+                    credential=cast(
+                        TokenCredential,
+                        ManagedIdentityCredential(client_id=metadata.client_id, tenant_id=metadata.tenant_id),
+                    ),
+                )
+        raise ValueError("Please provide metadata to init storage account")

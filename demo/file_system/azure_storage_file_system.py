@@ -39,8 +39,8 @@ class AzureStorageFileSystem(FileSystem):
         """Download a blob to local path"""
 
         blob_client = self.__container_client.get_blob_client(file_info.file_path)
-        os.makedirs(os.path.dirname(destination), exist_ok=True)
-        with open(destination, "wb") as f:
+        os.makedirs(destination, exist_ok=True)
+        with open(os.path.join(destination, file_info.file_name), "wb") as f:
             stream = blob_client.download_blob()
             # Stream in chunks instead of readall()
             for chunk in stream.chunks():

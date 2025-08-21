@@ -1,9 +1,9 @@
 apiVersion: ray.io/v1
 kind: RayJob
 metadata:
-  name: rayjob-sample-shutdown-1
+  name: rayjob-landing
 spec:
-  entrypoint: python /app/main.py
+  entrypoint: python /app/main.py --mode "ray" --stage "landing" --source_folder "/resources" --dest_folder "test/ray"
 
   # shutdownAfterJobFinishes specifies whether the RayCluster should be deleted after the RayJob finishes. Default is false.
 #  shutdownAfterJobFinishes: true
@@ -53,6 +53,17 @@ spec:
                 cpu: "1"
               requests:
                 cpu: "200m"
+            env:
+              - name: DX_API_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: dxpy-api-secret
+                    key: DX_API_TOKEN
+              - name: RAY_CONNECTION_STR
+                valueFrom:
+                  secretKeyRef:
+                    name: ray-connection-str
+                    key: RAY_CONNECTION_STR
 
     workerGroupSpecs:
     # the pod replicas in this group typed worker
@@ -76,3 +87,14 @@ spec:
                 cpu: "1"
               requests:
                 cpu: "200m"
+            env:
+              - name: DX_API_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: dxpy-api-secret
+                    key: DX_API_TOKEN
+              - name: RAY_CONNECTION_STR
+                valueFrom:
+                  secretKeyRef:
+                    name: ray-connection-str
+                    key: RAY_CONNECTION_STR

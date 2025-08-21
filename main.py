@@ -1,5 +1,6 @@
 import argparse
 import logging
+from pathlib import Path
 
 import dataconf
 from injector import Injector
@@ -22,7 +23,8 @@ def main() -> None:
     parser.add_argument("--dest_folder", type=str)
     args = parser.parse_args()
 
-    conf = ConfigFactory.parse_file(f"/Users/dean/PycharmProjects/RayK8sDemo/demo/config/stage/{args.stage}/local.conf")
+    file_path = Path(__file__).resolve()
+    conf = ConfigFactory.parse_file(f"{file_path.parent}/demo/config/stage/{args.stage}/local.conf")
     stage_metadata = dataconf.dict(conf[str(args.mode).lower()], StageMetadata)
 
     injector = Injector(

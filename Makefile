@@ -8,13 +8,6 @@ lint:
 	pylint demo
 	mypy
 
-# Run everything but fail if formatting is needed (good for CI)
-check:
-	black --check .
-	isort --check-only .
-	flake8
-	pylint demo
-	mypy
-
+RAY_FILE ?= k8s/ray-job.yaml
 deploy_ray:
-	docker build -t ray-actor-example:latest . && kubectl apply -f k8s/ray-job.yaml
+	docker build -t ray-actor-example:latest . && kubectl apply -f $(RAY_FILE)
