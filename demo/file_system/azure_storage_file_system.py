@@ -20,6 +20,8 @@ class AzureStorageFileSystem(FileSystem):
 
         if not folder_path.endswith("/"):
             folder_path += "/"
+        if folder_path.startswith("/"):
+            folder_path = folder_path[1:]
 
         # use walk_blobs if recursive, else list_blobs with delimiter
         blob_list = (
@@ -54,13 +56,13 @@ class AzureStorageFileSystem(FileSystem):
             blob_client.upload_blob(f, overwrite=True)
         return True
 
-    def upload_files(self, source_folder: str, destination_path: str) -> bool:
-        if destination_path.endswith("/"):
-            destination_path = destination_path[:-1]
+    def upload_files(self, source_folder: str, destination_folder: str) -> bool:
+        if destination_folder.endswith("/"):
+            destination_folder = destination_folder[:-1]
         result = True
         file_names = [f for f in os.listdir(source_folder) if os.path.isfile(os.path.join(source_folder, f))]
         for f in file_names:
-            result &= self.upload_file(os.path.join(source_folder, f), f"{destination_path}/{f}")
+            result &= self.upload_file(os.path.join(source_folder, f), f"{destination_folder}/{f}")
         return result
 
     def get_file_system_name(self) -> str:

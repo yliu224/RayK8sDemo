@@ -48,21 +48,19 @@ class FileSystem(ABC):
         Args:
             source_path (str): Path to the source file to upload.
             destination_path (str): Destination path in the file system.
-                                  If empty, uses the source filename.
 
         Returns:
             bool: True if successful, False otherwise.
         """
 
     @abstractmethod
-    def upload_files(self, source_folder: str, destination_path: str) -> bool:
+    def upload_files(self, source_folder: str, destination_folder: str) -> bool:
         """
         Upload a file to the file system.
 
         Args:
             source_folder (str): Path to the source file to upload.
-            destination_path (str): Destination path in the file system.
-                                  If empty, uses the source filename.
+            destination_folder (str): Destination folder which will store all the files
 
         Returns:
             bool: True if successful, False otherwise.

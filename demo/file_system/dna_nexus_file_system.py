@@ -47,10 +47,20 @@ class DNANexusFileSystem(FileSystem):
         return True
 
     def upload_file(self, source_path: str, destination_path: str) -> bool:
-        raise NotImplementedError("We don't support DNA Nexus upload for now")
+        dxpy.set_security_context(self.__auth_token)
+        folder = os.path.dirname(destination_path)
+        filename = os.path.basename(destination_path)
+        with open(source_path, "rb") as source_file:
+            dxpy.upload_local_file(file=source_file, project=self.__project_id, folder=folder, name=filename)
+        return True
 
-    def upload_files(self, source_folder: str, destination_path: str) -> bool:
-        raise NotImplementedError("We don't support DNA Nexus upload for now")
+    def upload_files(self, source_folder: str, destination_folder: str) -> bool:
+        success = True
+        for root, _, files in os.walk(source_folder):
+            for name in files:
+                abs_path = os.path.abspath(os.path.join(root, name))
+                success &= self.upload_file(abs_path, os.path.join(destination_folder, name))
+        return success
 
     def get_file_system_name(self) -> str:
         return self.__project_name
