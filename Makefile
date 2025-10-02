@@ -12,55 +12,65 @@ lint:
 	pylint demo
 	mypy
 
-RAY_FILE ?= k8s/ray-job.yaml
 deploy_ray:
-	sudo docker build -t raydemo.azurecr.io/ray-actor-example:latest . && sudo docker push raydemo.azurecr.io/ray-actor-example:latest && kubectl apply -f $(RAY_FILE)
+	RAY_FILE=k8s/$(STAGE)-job.yaml; \
+	kubectl delete rayjob rayjob-$(STAGE) --ignore-not-found; \
+	sudo docker build -t raydemo.azurecr.io/ray-actor-example:latest . && \
+	sudo docker push raydemo.azurecr.io/ray-actor-example:latest && \
+	kubectl apply -f $$RAY_FILE
 
 init_linux:
-	# Install environment
-	sudo apt update
-	sudo apt install python3.12-venv
-	sudo apt install python3-pip
-	python3 -m venv .venv 
-	. .venv/bin/activate
-	pip3 install -r requirements.txt
-	pip3 install -r lint_tool.txt
+	export DEBIAN_FRONTEND=noninteractive; \
+	# Install python environment
+	sudo apt update; \
+	sudo apt install python3.12-venv; \
+	sudo apt install python3-pip; \
+	python3 -m venv .venv; \
+	sleep 2; \
+	. .venv/bin/activate; \
+	pip3 install -r requirements.txt; \
+	pip3 install -r lint_tool.txt; \
 
-	# Install developer tools
-	sudo snap install docker
-	curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+	# Install developer tools(docker + azure cli)
+	sudo snap install docker; \
+	curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash; \
 
 
-init_linux_k8s:
+install_k8s:
 	# Install MicroK8s
-	sudo snap install microk8s --classic
-	sudo usermod -aG microk8s $USER
-	newgrp microk8s
+	sudo snap remove microk8s kubectl helm; \
+	sudo snap install microk8s --classic; \
+	sudo usermod -aG microk8s $$USER; \
+	microk8s start
 
 	# kubectl + Helm
-	sudo apt-get install -y kubectl
-	sudo snap install helm --classic
-	sudo microk8s config > ~/.kube/config
+	sudo snap install kubectl --classic; \
+	sudo snap install helm --classic; \
+	mkdir /home/azureuser/RayK8sDemo/.kube/; \
+	sudo microk8s config > /home/azureuser/.kube/config; \
 
 	# K9s
-	wget https://github.com/derailed/k9s/releases/latest/download/k9s_linux_amd64.deb && apt install ./k9s_linux_amd64.deb && rm k9s_linux_amd64.deb
+	sudo wget https://github.com/derailed/k9s/releases/latest/download/k9s_linux_amd64.deb && sudo apt install ./k9s_linux_amd64.deb && sudo rm k9s_linux_amd64.deb; \
 	
 
 install_ray:
-	helm repo add kuberay https://ray-project.github.io/kuberay-helm/
-	helm repo update
-	helm install kuberay-operator kuberay/kuberay-operator --version 1.4.2
+	helm repo add kuberay https://ray-project.github.io/kuberay-helm/; \
+	helm repo update; \
+	helm install kuberay-operator kuberay/kuberay-operator --version 1.4.2; \
 
-LOCAL_CONNECTION_STR ?= $LOCAL_CONNECTION_STR
-DX_API_TOKEN ?= $DX_API_TOKEN
+CONNECTION_STR ?= $$LOCAL_CONNECTION_STR
+DX_API_TOKEN ?= $$DX_API_TOKEN
 install_secrets:
-	kubectl create secret generic ray-connection-str --from-literal=RAY_CONNECTION_STR=$(LOCAL_CONNECTION_STR)
-	kubectl create secret generic dxpy-api-secret --from-literal=DX_API_TOKEN=$(DX_API_TOKEN)
+	kubectl delete secret ray-connection-str dxpy-api-secret --ignore-not-found; \
+	kubectl create secret generic ray-connection-str --from-literal=RAY_CONNECTION_STR=$(CONNECTION_STR); \
+	kubectl create secret generic dxpy-api-secret --from-literal=DX_API_TOKEN=$(DX_API_TOKEN); \
 
 
 ACR_NAME ?= raydemo
 link_acr:
-	@ACR_LOGIN_SERVER=$$(az acr show --name $(ACR_NAME) --query loginServer -o tsv); \
+	az login; \
+	sudo az acr login --name $(ACR_NAME); \
+	ACR_LOGIN_SERVER=$$(az acr show --name $(ACR_NAME) --query loginServer -o tsv); \
 	ACR_USERNAME=$$(az acr credential show --name $(ACR_NAME) --query username -o tsv); \
 	ACR_PASSWORD=$$(az acr credential show --name $(ACR_NAME) --query "passwords[0].value" -o tsv); \
 	kubectl delete secret acr-secret --ignore-not-found; \

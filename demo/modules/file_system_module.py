@@ -1,3 +1,4 @@
+import logging
 from typing import cast
 
 from azure.core.credentials import TokenCredential
@@ -10,6 +11,8 @@ from demo.config.stage.stage_metadata import StageMetadata
 from demo.config.stage.storage_account_metadata import StorageAccountMetadata
 from demo.file_system.azure_storage_file_system import AzureStorageFileSystem
 from demo.file_system.dna_nexus_file_system import DNANexusFileSystem
+
+LOG = logging.getLogger(__name__)
 
 
 class FileSystemModule(Module):
@@ -70,6 +73,7 @@ class FileSystemModule(Module):
     def __provide_storage_account(metadata: StorageAccountMetadata) -> BlobServiceClient:
         if metadata:
             if metadata.connection_str:
+
                 return BlobServiceClient.from_connection_string(metadata.connection_str)
             if metadata.storage_account_name and metadata.client_id and metadata.tenant_id:
                 return BlobServiceClient(
