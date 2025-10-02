@@ -1,4 +1,4 @@
-FROM rayproject/ray:2.49.0.66438d-py310-aarch64
+FROM rayproject/ray:nightly-py310-cu128
 
 WORKDIR /app
 
