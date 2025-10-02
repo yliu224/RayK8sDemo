@@ -73,7 +73,7 @@ class FileSystemModule(Module):
     def __provide_storage_account(metadata: StorageAccountMetadata) -> BlobServiceClient:
         if metadata:
             if metadata.connection_str:
-
+                LOG.info(f"Using connection string to connect to storage account {metadata.storage_account_name}")
                 return BlobServiceClient.from_connection_string(metadata.connection_str)
             if metadata.storage_account_name and metadata.client_id and metadata.tenant_id:
                 return BlobServiceClient(

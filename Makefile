@@ -37,17 +37,20 @@ init_linux:
 
 
 install_k8s:
-	# Install MicroK8s
-	sudo snap remove microk8s kubectl helm; \
-	sudo snap install microk8s --classic; \
-	sudo usermod -aG microk8s $$USER; \
-	microk8s start
+	# Install kind
+	if ! command -v kind >/dev/null 2>&1; then \
+		curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.30.0/kind-linux-amd64; \
+		chmod +x ./kind; \
+		sudo mv ./kind /usr/local/bin/kind; \
+		sudo kind create cluster; \
+	fi
 
 	# kubectl + Helm
+	sudo snap remove kubectl helm; \
 	sudo snap install kubectl --classic; \
 	sudo snap install helm --classic; \
-	mkdir /home/azureuser/RayK8sDemo/.kube/; \
-	sudo microk8s config > /home/azureuser/.kube/config; \
+	mkdir /home/azureuser/.kube/; \
+	sudo kind get kubeconfig > /home/azureuser/.kube/config; \
 
 	# K9s
 	sudo wget https://github.com/derailed/k9s/releases/latest/download/k9s_linux_amd64.deb && sudo apt install ./k9s_linux_amd64.deb && sudo rm k9s_linux_amd64.deb; \
@@ -58,11 +61,11 @@ install_ray:
 	helm repo update; \
 	helm install kuberay-operator kuberay/kuberay-operator --version 1.4.2; \
 
-CONNECTION_STR ?= $$LOCAL_CONNECTION_STR
+CONNECTION_STR ?= $$CONNECTION_STR
 DX_API_TOKEN ?= $$DX_API_TOKEN
 install_secrets:
 	kubectl delete secret ray-connection-str dxpy-api-secret --ignore-not-found; \
-	kubectl create secret generic ray-connection-str --from-literal=RAY_CONNECTION_STR=$(CONNECTION_STR); \
+	kubectl create secret generic ray-connection-str --from-literal=RAY_CONNECTION_STR="$(CONNECTION_STR)"; \
 	kubectl create secret generic dxpy-api-secret --from-literal=DX_API_TOKEN=$(DX_API_TOKEN); \
 
 
