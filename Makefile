@@ -20,7 +20,6 @@ deploy_ray:
 	kubectl apply -f $$RAY_FILE
 
 init_linux:
-	export DEBIAN_FRONTEND=noninteractive; \
 	# Install python environment
 	sudo apt update; \
 	sudo apt install python3.12-venv; \
@@ -68,6 +67,13 @@ install_secrets:
 	kubectl create secret generic ray-connection-str --from-literal=RAY_CONNECTION_STR="$(CONNECTION_STR)"; \
 	kubectl create secret generic dxpy-api-secret --from-literal=DX_API_TOKEN=$(DX_API_TOKEN); \
 
+install_azurite:
+	kubectl apply -f k8s/azure_emulator/azurite-pvc.yaml; \
+	kubectl apply -f k8s/azure_emulator/azurite-service.yaml; \
+	kubectl apply -f k8s/azure_emulator/azurite-deployment.yaml; \
+	echo "Waiting 10 seconds for azurite to start..."; \
+	sleep 10; \
+	kubectl delete job azurite-init && kubectl apply -f k8s/azure_emulator/azurite-init-containers.yaml
 
 ACR_NAME ?= raydemo
 link_acr:
@@ -85,3 +91,5 @@ link_acr:
 		
 	kubectl patch serviceaccount default \
 		-p "{\"imagePullSecrets\": [{\"name\": \"acr-secret\"}]}"; \
+
+linux_one_shot: init_linux install_k8s install_ray install_secrets link_acr install_azurite
