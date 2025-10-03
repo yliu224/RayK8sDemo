@@ -73,7 +73,7 @@ install_azurite:
 	kubectl apply -f k8s/azure_emulator/azurite-deployment.yaml; \
 	echo "Waiting 10 seconds for azurite to start..."; \
 	sleep 10; \
-	kubectl delete job azurite-init && kubectl apply -f k8s/azure_emulator/azurite-init-containers.yaml
+	kubectl delete job azurite-init --ignore-not-found && kubectl apply -f k8s/azure_emulator/azurite-init-containers.yaml
 
 ACR_NAME ?= raydemo
 link_acr:
