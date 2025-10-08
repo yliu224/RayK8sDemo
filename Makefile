@@ -60,6 +60,8 @@ install_ray:
 	helm repo update; \
 	helm install kuberay-operator kuberay/kuberay-operator --version 1.4.2; \
 
+# If you are using access_key, please use this connection string format:
+# "DefaultEndpointsProtocol=https;AccountName={account_name};AccountKey={account_key};EndpointSuffix=core.windows.net"
 CONNECTION_STR ?= $$CONNECTION_STR
 DX_API_TOKEN ?= $$DX_API_TOKEN
 install_secrets:

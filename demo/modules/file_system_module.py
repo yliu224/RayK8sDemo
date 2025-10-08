@@ -2,7 +2,7 @@ import logging
 from typing import cast
 
 from azure.core.credentials import TokenCredential
-from azure.identity import ManagedIdentityCredential
+from azure.identity import ManagedIdentityCredential,DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 from injector import Module, provider, singleton
 
@@ -83,5 +83,11 @@ class FileSystemModule(Module):
                         TokenCredential,
                         ManagedIdentityCredential(client_id=metadata.client_id, tenant_id=metadata.tenant_id),
                     ),
+                )
+            if metadata.storage_account_name:
+                LOG.info("Loading storage account from default credential")
+                return BlobServiceClient(
+                    account_url=f"https://{metadata.storage_account_name}.blob.core.windows.net",
+                    credential=DefaultAzureCredential(),
                 )
         raise ValueError("Please provide metadata to init storage account")

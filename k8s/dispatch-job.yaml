@@ -64,7 +64,14 @@ spec:
                   secretKeyRef:
                     name: ray-connection-str
                     key: RAY_CONNECTION_STR
-
+            volumeMounts:
+            - mountPath: /home/ray/.azure
+              name: azure-cli-creds
+          volumes:
+          - name: azure-cli-creds
+            hostPath:
+              path: /home/azureuser/.azure
+              type: Directory
     workerGroupSpecs:
     # the pod replicas in this group typed worker
     - replicas: 1
@@ -98,3 +105,11 @@ spec:
                   secretKeyRef:
                     name: ray-connection-str
                     key: RAY_CONNECTION_STR
+            volumeMounts:
+            - mountPath: /home/ray/.azure
+              name: azure-cli-creds
+          volumes:
+          - name: azure-cli-creds
+            hostPath:
+              path: /home/azureuser/.azure
+              type: Directory
