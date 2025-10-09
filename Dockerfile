@@ -9,3 +9,6 @@ RUN python --version
 COPY demo/ demo/
 COPY main.py main.py
 
+# This is for local testing only. It's installing the Azure CLI.
+RUN sudo apt-get update && sudo apt-get install -y curl && curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash;
+
