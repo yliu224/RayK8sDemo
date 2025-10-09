@@ -6,10 +6,11 @@ from dxpy.bindings.dxfile_functions import download_dxfile
 
 from demo.file_system.file_info import FileInfo
 from demo.file_system.file_system import FileSystem
+from demo.modules.constants import DxApiToken
 
 
 class DNANexusFileSystem(FileSystem):
-    def __init__(self, project: str, token: str):
+    def __init__(self, project: str, token: DxApiToken):
         super().__init__()
         self.__auth_token = {"auth_token_type": "Bearer", "auth_token": token}
         dxpy.set_security_context(self.__auth_token)

@@ -1,13 +1,9 @@
 import uuid
 from abc import ABC, abstractmethod
-from typing import NewType
 
 from injector import inject
 
-from demo.file_system.file_system import FileSystem
-
-SourceFileSystem = NewType("SourceFileSystem", FileSystem)
-DestinationFileSystem = NewType("DestinationFileSystem", FileSystem)
+from demo.modules.constants import DestinationFileSystem, SourceFileSystem
 
 
 class DNACarrier(ABC):

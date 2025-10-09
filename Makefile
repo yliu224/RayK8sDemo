@@ -41,7 +41,7 @@ install_k8s:
 		curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.30.0/kind-linux-amd64; \
 		chmod +x ./kind; \
 		sudo mv ./kind /usr/local/bin/kind; \
-		sudo kind create cluster; \
+		kind create cluster --config k8s/local_credential/mount_path.yaml; \
 	fi
 
 	# kubectl + Helm
@@ -53,7 +53,7 @@ install_k8s:
 
 	# K9s
 	sudo wget https://github.com/derailed/k9s/releases/latest/download/k9s_linux_amd64.deb && sudo apt install ./k9s_linux_amd64.deb && sudo rm k9s_linux_amd64.deb; \
-	
+
 
 install_ray:
 	helm repo add kuberay https://ray-project.github.io/kuberay-helm/; \
@@ -94,4 +94,4 @@ link_acr:
 	kubectl patch serviceaccount default \
 		-p "{\"imagePullSecrets\": [{\"name\": \"acr-secret\"}]}"; \
 
-linux_one_shot: init_linux install_k8s install_ray install_secrets link_acr install_azurite
+linux_one_shot: init_linux install_k8s install_ray link_acr 

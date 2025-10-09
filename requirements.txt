@@ -2,6 +2,7 @@ ray
 dxpy
 azure-storage-blob
 azure-identity
+azure-keyvault-secrets
 injector
 dataconf
 pyspark
