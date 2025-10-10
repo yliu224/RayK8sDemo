@@ -37,12 +37,14 @@ init_linux:
 
 install_k8s:
 	# Install kind
-	if ! command -v kind >/dev/null 2>&1; then \
-		curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.30.0/kind-linux-amd64; \
-		chmod +x ./kind; \
-		sudo mv ./kind /usr/local/bin/kind; \
-		kind create cluster --config k8s/local_credential/mount_path.yaml; \
-	fi
+
+	curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.30.0/kind-linux-amd64; \
+	chmod +x ./kind; \
+	sudo mv ./kind /usr/local/bin/kind; \
+	mkdir /home/azureuser/.azure; \
+	sudo kind get clusters | grep -qx kind && sudo kind delete cluster --name kind; \
+	sudo kind create cluster --config k8s/local_credential/mount_path.yaml; \
+
 
 	# kubectl + Helm
 	sudo snap remove kubectl helm; \
@@ -78,8 +80,9 @@ install_azurite:
 	kubectl delete job azurite-init --ignore-not-found && kubectl apply -f k8s/azure_emulator/azurite-init-containers.yaml
 
 ACR_NAME ?= raydemo
+TENANT_ID ?= $$TENANT_ID
 link_acr:
-	az login; \
+	az login --tenant $(TENANT_ID); \
 	sudo az acr login --name $(ACR_NAME); \
 	ACR_LOGIN_SERVER=$$(az acr show --name $(ACR_NAME) --query loginServer -o tsv); \
 	ACR_USERNAME=$$(az acr credential show --name $(ACR_NAME) --query username -o tsv); \
@@ -94,4 +97,4 @@ link_acr:
 	kubectl patch serviceaccount default \
 		-p "{\"imagePullSecrets\": [{\"name\": \"acr-secret\"}]}"; \
 
-linux_one_shot: init_linux install_k8s install_ray link_acr 
+linux_one_shot: init_linux install_k8s install_ray install_secrets link_acr 

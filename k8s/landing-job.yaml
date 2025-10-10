@@ -3,7 +3,7 @@ kind: RayJob
 metadata:
   name: rayjob-landing
 spec:
-  entrypoint: python /app/main.py --mode "ray" --stage "landing" --source_folder "/resources" --dest_folder "test/ray"
+  entrypoint: python /app/main.py --mode "ray" --stage "landing" --source_folder "/resources" --dest_folder "test/final"
   submitterPodTemplate:
     spec:
       restartPolicy: Never
