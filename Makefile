@@ -12,12 +12,20 @@ lint:
 	pylint demo
 	mypy
 
+JOB_NAME ?= test-job
+IMAGE := $(ACR_NAME).azurecr.io/ray-actor-example:latest
+PARAMS ?= --stage "landing" --source_folder "/resources" --dest_folder "test/final"
+
 deploy_ray:
-	RAY_FILE=k8s/$(STAGE)-job.yaml; \
-	kubectl delete rayjob rayjob-$(STAGE) --ignore-not-found; \
-	sudo docker build -t raydemo.azurecr.io/ray-actor-example:latest . && \
-	sudo docker push raydemo.azurecr.io/ray-actor-example:latest && \
-	kubectl apply -f $$RAY_FILE
+	kubectl delete rayjob $(JOB_NAME) --ignore-not-found; \
+	sudo docker build -t $(IMAGE) . && sudo docker push $(IMAGE); \
+
+	sed \
+		-e "s~{{IMAGE}}~$(IMAGE)~g" \
+		-e "s~{{JOB_NAME}}~$(JOB_NAME)~g" \
+		-e "s~{{PARAMS}}~$(PARAMS)~g" \
+		k8s/ray-job.yaml | kubectl apply -f -; \
+
 
 init_linux:
 	# Install python environment
@@ -79,7 +87,7 @@ install_azurite:
 	sleep 10; \
 	kubectl delete job azurite-init --ignore-not-found && kubectl apply -f k8s/azure_emulator/azurite-init-containers.yaml
 
-ACR_NAME ?= raydemo
+ACR_NAME ?= $$ACR_NAME
 TENANT_ID ?= $$TENANT_ID
 link_acr:
 	az login --tenant $(TENANT_ID); \

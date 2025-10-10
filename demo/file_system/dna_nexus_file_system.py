@@ -43,7 +43,6 @@ class DNANexusFileSystem(FileSystem):
             dxid=file_info.file_id,
             filename=f"{destination}/{file_info.file_name}",
             project=self.__project_id,
-            show_progress=True,
         )
         return True
 

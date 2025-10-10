@@ -8,10 +8,7 @@ from pyhocon import ConfigFactory
 
 from demo.carrier.dna_carrier import DNACarrier
 from demo.config.stage.stage_metadata import StageMetadata
-from demo.modules.carrier_module import CarrierModule
-from demo.modules.file_system_module import FileSystemModule
 from demo.modules.module_factory import ModuleFactory
-from demo.modules.secret_fetcher_module import SecretFetcherModule
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("azure.core").setLevel(logging.WARNING)

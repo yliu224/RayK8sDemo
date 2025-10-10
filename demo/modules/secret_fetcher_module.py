@@ -1,6 +1,6 @@
 import logging
 
-from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
+from azure.identity import AzureCliCredential, ManagedIdentityCredential
 from azure.keyvault.secrets import SecretClient
 from injector import Module, provider, singleton
 
@@ -14,7 +14,6 @@ LOG = logging.getLogger(__name__)
 
 class SecretFetcherModule(Module):
     def __init__(self, stage_metadata: StageMetadata):
-        self.__stage = stage_metadata.stage
         self.__key_vault_metadata = stage_metadata.key_vault
         self.__default_client_id = stage_metadata.default_client_id
         self.__default_tenant_id = stage_metadata.default_tenant_id
@@ -44,8 +43,8 @@ class SecretFetcherModule(Module):
                 credential=ManagedIdentityCredential(client_id=client_id, tenant_id=tenant_id),
             )
         else:
-            LOG.info("Using DefaultAzureCredential to access Key Vault")
+            LOG.info("Using AzureCliCredential to access Key Vault")
             secret_client = SecretClient(
-                vault_url=self.__key_vault_metadata.vault_url, credential=DefaultAzureCredential()
+                vault_url=self.__key_vault_metadata.vault_url, credential=AzureCliCredential()
             )
         return KVSecretFetcher(secret_client)

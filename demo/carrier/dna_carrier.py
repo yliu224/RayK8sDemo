@@ -1,13 +1,10 @@
 import uuid
 from abc import ABC, abstractmethod
 
-from injector import inject
-
 from demo.modules.constants import DestinationFileSystem, SourceFileSystem
 
 
 class DNACarrier(ABC):
-    @inject
     def __init__(self, source: SourceFileSystem, dest: DestinationFileSystem):
         """
         Interface for moving data from a source to a destination.

@@ -1,4 +1,4 @@
-from injector import Module, inject, provider, singleton
+from injector import Module, provider, singleton
 
 from demo.carrier.dna_carrier import DNACarrier
 from demo.carrier.dna_local_carrier import DNALocalCarrier
