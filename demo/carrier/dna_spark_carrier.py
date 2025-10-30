@@ -1,12 +1,10 @@
 import logging
-import os.path
-import shutil
 
 from pyspark.sql import SparkSession
-from pyspark.sql.types import Row, StringType, StructField, StructType
+from pyspark.sql.types import StringType, StructField, StructType
 
 from demo.carrier.dna_carrier import DNACarrier
-from demo.file_system.file_info import FileInfo
+from demo.carrier.dna_spark_carrier_executor import DNASparkCarrierExecutor
 
 LOG = logging.getLogger(__name__)
 
@@ -16,22 +14,7 @@ class DNASparkCarrier(DNACarrier):
 
     def move_folder(self, source_folder: str, dest_folder: str, recursive: bool = True) -> None:
         spark = self.get_spark_session()
-
-        def spark_download(row: Row) -> Row:
-            tmp_folder = self.generate_tmp_folder()
-            try:
-                file_info = FileInfo.from_json(row.FileInfo)
-                self.source.download_file(file_info, tmp_folder)
-                self.dest.upload_file(
-                    os.path.join(tmp_folder, file_info.file_name), os.path.join(dest_folder, file_info.file_name)
-                )
-                return Row(Message="True")
-            except Exception as e:
-                LOG.exception(e)
-                return Row(Message=e)
-            finally:
-                shutil.rmtree(tmp_folder)
-                LOG.info(f"Cleaned up {tmp_folder}")
+        executor = DNASparkCarrierExecutor(self.source, self.dest, dest_folder)
 
         files = self.source.list_folder(source_folder, recursive)
         total = len(files)
@@ -41,7 +24,7 @@ class DNASparkCarrier(DNACarrier):
         df = spark.createDataFrame(spark_params, self.SPARK_PARAM)
         LOG.info("Start download/upload files using spark")
 
-        result = df.rdd.map(spark_download).toDF()
+        result = df.rdd.map(executor.spark_download).toDF()
         failed_df = result.where("Message != 'True'")
         failed_count = failed_df.count()
         LOG.info(

@@ -44,7 +44,5 @@ class SecretFetcherModule(Module):
             )
         else:
             LOG.info("Using AzureCliCredential to access Key Vault")
-            secret_client = SecretClient(
-                vault_url=self.__key_vault_metadata.vault_url, credential=AzureCliCredential()
-            )
+            secret_client = SecretClient(vault_url=self.__key_vault_metadata.vault_url, credential=AzureCliCredential())
         return KVSecretFetcher(secret_client)

@@ -13,7 +13,7 @@ lint:
 	mypy
 
 JOB_NAME ?= test-job
-IMAGE := $(ACR_NAME).azurecr.io/ray-actor-example:latest
+IMAGE := $(ACR_NAME).azurecr.io/spark-example:latest
 PARAMS ?= --stage "landing" --source_folder "/resources" --dest_folder "test/final"
 
 deploy_ray:
@@ -27,8 +27,9 @@ deploy_ray:
 		k8s/ray-job.yaml | kubectl apply -f -; \
 
 deploy_spark:
+	cp -r ~/.azure .
 	kubectl delete sparkapplication $(JOB_NAME) --ignore-not-found; \
-	sudo docker build -t $(IMAGE) . && sudo docker push $(IMAGE); \
+	sudo docker build -f Dockerfile.Spark -t $(IMAGE) . && sudo docker push $(IMAGE); \
 
 	sed \
 		-e "s~{{IMAGE}}~$(IMAGE)~g" \
@@ -78,6 +79,16 @@ install_ray:
 	helm repo update; \
 	helm install kuberay-operator kuberay/kuberay-operator --version 1.4.2; \
 
+install_spark_operator:
+	helm repo add spark-operator https://kubeflow.github.io/spark-operator; \
+	helm repo update; \
+	kubectl get namespace spark-operator >/dev/null 2>&1 || kubectl create namespace spark-operator
+	helm install spark-operator spark-operator/spark-operator --namespace spark-operator --set sparkJobNamespace=default --set webhook.enable=true; \
+	kubectl apply -f k8s/spark_role/create_role.yaml; \
+	kubectl apply -f k8s/spark_role/create_service_account.yaml; \
+	kubectl apply -f k8s/spark_role/role_binding.yaml; \
+
+
 # If you are using access_key, please use this connection string format:
 # "DefaultEndpointsProtocol=https;AccountName={account_name};AccountKey={account_key};EndpointSuffix=core.windows.net"
 CONNECTION_STR ?= $$CONNECTION_STR
@@ -111,6 +122,9 @@ link_acr:
 		--docker-email=unused@example.com; \
 		
 	kubectl patch serviceaccount default \
+		-p "{\"imagePullSecrets\": [{\"name\": \"acr-secret\"}]}"; \
+
+	kubectl patch serviceaccount spark \
 		-p "{\"imagePullSecrets\": [{\"name\": \"acr-secret\"}]}"; \
 
 linux_one_shot: init_linux install_k8s install_ray install_secrets link_acr 

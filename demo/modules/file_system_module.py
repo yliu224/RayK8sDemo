@@ -38,7 +38,6 @@ class FileSystemModule(Module):
         if self.__stage == LANDING:
             assert self.__project is not None
             assert token is not None
-            LOG.info(f"Token is {token},{type(token)}")
             return cast(SourceFileSystem, DNANexusFileSystem(self.__project, token))
 
         if self.__stage in [DISPATCH, EMBASSY, NOTIFICATION]:

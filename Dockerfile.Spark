@@ -1,0 +1,22 @@
+FROM spark:3.5.7-scala2.12-java17-python3-ubuntu
+
+USER root
+# This is for local testing only. It's installing the Azure CLI.
+RUN apt-get update && apt-get install -y curl && curl -sL https://aka.ms/InstallAzureCLIDeb | bash;
+COPY .azure/ /home/spark/.azure/
+RUN mkdir -p /home/spark \
+    && chown -R spark:spark /home/spark \
+    && chmod 700 /home/spark
+
+
+USER spark
+ENV HOME=/home/spark
+WORKDIR /opt/spark
+
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+RUN python3 --version
+RUN echo $HOME
+
+COPY demo/ demo/
+COPY main.py main.py
