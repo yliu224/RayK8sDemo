@@ -26,6 +26,14 @@ deploy_ray:
 		-e "s~{{PARAMS}}~$(PARAMS)~g" \
 		k8s/ray-job.yaml | kubectl apply -f -; \
 
+deploy_spark:
+	kubectl delete sparkapplication $(JOB_NAME) --ignore-not-found; \
+	sudo docker build -t $(IMAGE) . && sudo docker push $(IMAGE); \
+
+	sed \
+		-e "s~{{IMAGE}}~$(IMAGE)~g" \
+		-e "s~{{JOB_NAME}}~$(JOB_NAME)~g" \
+		k8s/spark-job.yaml | kubectl apply -f -; \
 
 init_linux:
 	# Install python environment
