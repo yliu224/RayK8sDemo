@@ -1,4 +1,5 @@
 import logging
+from typing import Any, Callable
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType, StructField, StructType
@@ -13,6 +14,9 @@ class DNASparkCarrier(DNACarrier):
     SPARK_PARAM = StructType([StructField("FileInfo", StringType(), True)])
 
     def move_folder(self, source_folder: str, dest_folder: str, recursive: bool = True) -> None:
+        self.sanity_check(self.source.get_file_system_name(), self.source.list_folder, source_folder)
+        self.sanity_check(self.dest.get_file_system_name(), self.dest.list_folder, dest_folder)
+
         spark = self.get_spark_session()
         executor = DNASparkCarrierExecutor(self.source, self.dest, dest_folder)
 
@@ -39,3 +43,11 @@ class DNASparkCarrier(DNACarrier):
         spark = SparkSession.builder.appName("MyApp").getOrCreate()
         spark.sparkContext.setLogLevel("WARN")
         return spark
+
+    @staticmethod
+    def sanity_check(name: str, func: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            LOG.error(f"Failed to run sanity check for {name}: {e}")
+            raise e

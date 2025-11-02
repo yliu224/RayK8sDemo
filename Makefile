@@ -127,4 +127,4 @@ link_acr:
 	kubectl patch serviceaccount spark \
 		-p "{\"imagePullSecrets\": [{\"name\": \"acr-secret\"}]}"; \
 
-linux_one_shot: init_linux install_k8s install_ray install_secrets link_acr 
+linux_one_shot: init_linux install_k8s install_ray install_spark_operator install_secrets link_acr 
