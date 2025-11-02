@@ -16,9 +16,9 @@ spec:
     - "--stage"
     - "landing"
     - "--source_folder"
-    - "/resources"
+    - "/"
     - "--dest_folder"
-    - "test/final"
+    - "/spark_output"
   sparkVersion: "3.5.0"
   restartPolicy:
     type: Never

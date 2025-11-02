@@ -2,10 +2,11 @@ import uuid
 from abc import ABC, abstractmethod
 
 from demo.modules.constants import DestinationFileSystem, SourceFileSystem
+from demo.path_mapper.path_mapper import PathMapper
 
 
 class DNACarrier(ABC):
-    def __init__(self, source: SourceFileSystem, dest: DestinationFileSystem):
+    def __init__(self, source: SourceFileSystem, dest: DestinationFileSystem, mapper: PathMapper):
         """
         Interface for moving data from a source to a destination.
 
@@ -17,6 +18,7 @@ class DNACarrier(ABC):
         self.__dest = dest
         self.__source_name = self.__source.get_file_system_name()
         self.__dest_name = self.__dest.get_file_system_name()
+        self.__mapper = mapper
 
     @abstractmethod
     def move_folder(
@@ -55,6 +57,10 @@ class DNACarrier(ABC):
     @property
     def dest_name(self) -> str:
         return self.__dest_name
+
+    @property
+    def mapper(self) -> PathMapper:
+        return self.__mapper
 
     @staticmethod
     def generate_tmp_folder() -> str:

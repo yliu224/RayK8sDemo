@@ -14,11 +14,11 @@ class DNASparkCarrier(DNACarrier):
     SPARK_PARAM = StructType([StructField("FileInfo", StringType(), True)])
 
     def move_folder(self, source_folder: str, dest_folder: str, recursive: bool = True) -> None:
-        self.sanity_check(self.source.get_file_system_name(), self.source.list_folder, source_folder)
-        self.sanity_check(self.dest.get_file_system_name(), self.dest.list_folder, dest_folder)
+        self.sanity_check(self.source.get_file_system_name(), self.source.list_folder, source_folder, False)
+        self.sanity_check(self.dest.get_file_system_name(), self.dest.list_folder, dest_folder, False)
 
         spark = self.get_spark_session()
-        executor = DNASparkCarrierExecutor(self.source, self.dest, dest_folder)
+        executor = DNASparkCarrierExecutor(self.source, self.dest, self.mapper, dest_folder)
 
         files = self.source.list_folder(source_folder, recursive)
         total = len(files)

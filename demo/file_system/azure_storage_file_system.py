@@ -18,10 +18,8 @@ class AzureStorageFileSystem(FileSystem):
         """List blobs under a folder path in Azure Blob Storage"""
         results: List[FileInfo] = []
 
-        if not folder_path.endswith("/"):
-            folder_path += "/"
-        if folder_path.startswith("/"):
-            folder_path = folder_path[1:]
+        folder_path = folder_path if folder_path.endswith("/") else folder_path + "/"
+        folder_path = folder_path.lstrip("/")
 
         # use walk_blobs if recursive, else list_blobs with delimiter
         blob_list = (
@@ -51,7 +49,7 @@ class AzureStorageFileSystem(FileSystem):
 
     def upload_file(self, source_path: str, destination_path: str) -> bool:
         """Upload a local file to Azure Blob Storage"""
-        blob_client = self.__container_client.get_blob_client(destination_path)
+        blob_client = self.__container_client.get_blob_client(destination_path.lstrip("/"))
         with open(source_path, "rb") as f:
             blob_client.upload_blob(f, overwrite=True)
         return True

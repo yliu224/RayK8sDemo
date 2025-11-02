@@ -7,6 +7,7 @@ from demo.config.stage.stage_metadata import StageMetadata
 from demo.modules.carrier_module import CarrierModule
 from demo.modules.constants import LANDING
 from demo.modules.file_system_module import FileSystemModule
+from demo.modules.path_mapper_module import PathMapperModlue
 from demo.modules.secret_fetcher_module import SecretFetcherModule
 
 
@@ -16,6 +17,7 @@ class ModuleFactory:
         modules = [
             FileSystemModule(stage_metadata),
             CarrierModule(mode=str(args.mode).lower()),
+            PathMapperModlue(stage_metadata.stage),
         ]
         if stage_metadata.stage == LANDING:
             modules.append(SecretFetcherModule(stage_metadata))

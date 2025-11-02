@@ -34,7 +34,7 @@ class DNARayCarrier(DNACarrier):
         try:
             host_name = socket.gethostname()
             tmp_file_path = os.path.join(tmp_folder, source_file.file_name)
-            dest_file_path = os.path.join(dest_folder, source_file.file_name)
+            dest_file_path = self.mapper.map(source_file, dest_folder)
 
             self.source.download_file(source_file, tmp_folder)
             LOG.info(f"Download {self.source_name}:{source_file.file_path} to {host_name}:{tmp_file_path}")
