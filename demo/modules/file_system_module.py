@@ -4,7 +4,7 @@ from typing import cast
 from azure.core.credentials import TokenCredential
 from azure.identity import AzureCliCredential, ManagedIdentityCredential
 from azure.storage.blob import BlobServiceClient
-from injector import Module, provider
+from injector import Module, provider, singleton
 
 from demo.config.stage.stage_metadata import StageMetadata
 from demo.config.stage.storage_account_metadata import StorageAccountMetadata
@@ -33,6 +33,7 @@ class FileSystemModule(Module):
         self.__default_client_id = stage_metadata.default_client_id
         self.__default_tenant_id = stage_metadata.default_tenant_id
 
+    @singleton
     @provider
     def provide_source_file_system(self, token: DxApiToken) -> SourceFileSystem:
         if self.__stage == LANDING:
@@ -53,6 +54,7 @@ class FileSystemModule(Module):
 
         raise ValueError(f"Unknown stage {self.__stage} when creating SourceFileSystem")
 
+    @singleton
     @provider
     def provide_destination_file_system(self, token: DxApiToken) -> DestinationFileSystem:
         if self.__stage == NOTIFICATION:

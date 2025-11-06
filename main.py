@@ -11,7 +11,7 @@ from demo.config.stage.stage_metadata import StageMetadata
 from demo.modules.module_factory import ModuleFactory
 
 logging.basicConfig(level=logging.INFO)
-logging.getLogger("azure.core").setLevel(logging.WARNING)
+logging.getLogger("azure").setLevel(logging.WARNING)
 
 
 def main() -> None:
@@ -25,7 +25,6 @@ def main() -> None:
     file_path = Path(__file__).resolve()
     conf = ConfigFactory.parse_file(f"{file_path.parent}/demo/config/stage/{args.stage}/local.conf")
     stage_metadata = dataconf.dict(conf[str(args.mode).lower()], StageMetadata)
-
     injector = Injector(ModuleFactory.create_modules(stage_metadata, args))
     carrier = injector.get(DNACarrier)
     carrier.move_folder(args.source_folder, args.dest_folder)

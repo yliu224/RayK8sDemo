@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Iterator, List, Tuple
 
 from demo.file_system.file_info import FileInfo
 
@@ -8,7 +8,7 @@ class FileSystem(ABC):
     """Abstract interface for file system operations."""
 
     @abstractmethod
-    def list_folder(self, folder_path: str, recursive: bool = True) -> List[FileInfo]:
+    def list_folder(self, folder_path: str, recursive: bool = True) -> Iterator[Tuple[int, FileInfo]]:
         """
         List contents of a folder.
 
@@ -17,8 +17,7 @@ class FileSystem(ABC):
             recursive (bool): Controlling if the look-up will be recursive or not
 
         Returns:
-            List[FileInfo]: List of dictionaries containing file/folder information.
-                Each dict should contain: name, path, type, size (for files), modified
+            Iterator[Tuple[int, FileInfo]]: An iterator of tuples containing file index and FileInfo objects.
         """
 
     @abstractmethod

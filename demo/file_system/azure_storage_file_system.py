@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import Iterator, Tuple
 
 from azure.storage.blob import BlobProperties, BlobServiceClient
 
@@ -14,26 +14,20 @@ class AzureStorageFileSystem(FileSystem):
         self.__blob_service_client = blob_client
         self.__container_client = self.__blob_service_client.get_container_client(container)
 
-    def list_folder(self, folder_path: str, recursive: bool = True) -> List[FileInfo]:
+    def list_folder(self, folder_path: str, recursive: bool = True) -> Iterator[Tuple[int, FileInfo]]:
         """List blobs under a folder path in Azure Blob Storage"""
-        results: List[FileInfo] = []
 
         folder_path = folder_path if folder_path.endswith("/") else folder_path + "/"
         folder_path = folder_path.lstrip("/")
 
         # use walk_blobs if recursive, else list_blobs with delimiter
-        blob_list = (
-            self.__container_client.walk_blobs(name_starts_with=folder_path)
-            if recursive
-            else self.__container_client.list_blobs(name_starts_with=folder_path)
-        )
+        blob_list = self.__container_client.list_blobs(name_starts_with=folder_path)
 
-        for blob in blob_list:
+        for idx, blob in enumerate(blob_list):
             assert isinstance(blob, BlobProperties)
             file_name = os.path.basename(blob.name)
             folder = os.path.dirname(blob.name)
-            results.append(FileInfo(file_name=file_name, file_size=blob.size, folder=folder, file_id=blob.etag))
-        return results
+            yield idx, FileInfo(file_name=file_name, file_size=blob.size, folder=folder, file_id=blob.etag)
 
     def download_file(self, file_info: FileInfo, destination: str) -> bool:
         """Download a blob to local path"""

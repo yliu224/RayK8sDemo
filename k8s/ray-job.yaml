@@ -44,16 +44,6 @@ spec:
             env:
               - name: RAY_DEDUP_LOGS
                 value: "0"
-              - name: DX_API_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: dxpy-api-secret
-                    key: DX_API_TOKEN
-              - name: RAY_CONNECTION_STR
-                valueFrom:
-                  secretKeyRef:
-                    name: ray-connection-str
-                    key: RAY_CONNECTION_STR
             volumeMounts:
             - mountPath: /home/ray/.azure
               name: azure-cli-creds
@@ -83,16 +73,6 @@ spec:
             env:
               - name: RAY_DEDUP_LOGS
                 value: "0"
-              - name: DX_API_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: dxpy-api-secret
-                    key: DX_API_TOKEN
-              - name: RAY_CONNECTION_STR
-                valueFrom:
-                  secretKeyRef:
-                    name: ray-connection-str
-                    key: RAY_CONNECTION_STR
             volumeMounts:
             - mountPath: /home/ray/.azure
               name: azure-cli-creds

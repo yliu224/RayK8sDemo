@@ -13,8 +13,8 @@ lint:
 	mypy
 
 JOB_NAME ?= test-job
-IMAGE := $(ACR_NAME).azurecr.io/spark-example:latest
-PARAMS ?= --stage "landing" --source_folder "/resources" --dest_folder "test/final"
+IMAGE := $(ACR_NAME).azurecr.io/ray-example:latest
+PARAMS ?= --stage "landing" --source_folder "/" --dest_folder "/ray_output"
 
 deploy_ray:
 	kubectl delete rayjob $(JOB_NAME) --ignore-not-found; \

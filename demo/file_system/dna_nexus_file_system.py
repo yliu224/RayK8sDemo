@@ -1,5 +1,5 @@
 import os
-from typing import Any, List
+from typing import Any, Iterator, Tuple
 
 import dxpy
 from dxpy.bindings.dxfile_functions import download_dxfile
@@ -17,24 +17,19 @@ class DNANexusFileSystem(FileSystem):
         self.__project_id = dxpy.find_one_project(level="VIEW", name=project, name_mode="regexp")["id"]
         self.__project_name = project
 
-    def list_folder(self, folder_path: str, recursive: bool = True) -> List[FileInfo]:
-        """
-        TODO: Need a sample project with over 1k files and test the find_data_objects() pagination feature
-        TODO: For delta processing, we can filter things by tags/visibility and datetime
-        :param folder_path:
-        :param recursive:
-        :return:
-        """
+    def list_folder(self, folder_path: str, recursive: bool = True) -> Iterator[Tuple[int, FileInfo]]:
+        # This API will automatically handle pagination, the init page size is 100
+        # and it multiplies by 2 for each subsequent. The max page size is 1000
         objs = dxpy.find_data_objects(
             classname="file",
-            first_page_size=1000,
             state="closed",
             describe={"fields": {"id": True, "name": True, "folder": True, "parts": True}},
             project=self.__project_id,
             folder=folder_path,
             recurse=recursive,
         )
-        return [self.__extract_file_info(obj["describe"]) for obj in list(objs)]
+        for idx, obj in enumerate(objs):
+            yield idx, self.__extract_file_info(obj["describe"])
 
     def download_file(self, file_info: FileInfo, destination: str) -> bool:
         dxpy.set_security_context(self.__auth_token)
