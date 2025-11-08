@@ -18,20 +18,15 @@ class AzureStorageFileSystem(FileSystem):
         """List blobs under a folder path in Azure Blob Storage"""
         results: List[FileInfo] = []
 
-        folder_path = folder_path if folder_path.endswith("/") else folder_path + "/"
-        folder_path = folder_path.lstrip("/")
-
-        # use walk_blobs if recursive, else list_blobs with delimiter
-        blob_list = (
-            self.__container_client.walk_blobs(name_starts_with=folder_path)
-            if recursive
-            else self.__container_client.list_blobs(name_starts_with=folder_path)
-        )
+        folder_path = self.normalize_path(folder_path)
+        blob_list = self.__container_client.list_blobs(name_starts_with=folder_path)
 
         for blob in blob_list:
             assert isinstance(blob, BlobProperties)
             file_name = os.path.basename(blob.name)
             folder = os.path.dirname(blob.name)
+            if not recursive and folder != folder_path.rstrip("/"):
+                continue
             results.append(FileInfo(file_name=file_name, file_size=blob.size, folder=folder, file_id=blob.etag))
         return results
 
@@ -55,13 +50,19 @@ class AzureStorageFileSystem(FileSystem):
         return True
 
     def upload_files(self, source_folder: str, destination_folder: str) -> bool:
-        if destination_folder.endswith("/"):
-            destination_folder = destination_folder[:-1]
+        destination_folder = destination_folder.rstrip("/")
         result = True
         file_names = [f for f in os.listdir(source_folder) if os.path.isfile(os.path.join(source_folder, f))]
         for f in file_names:
-            result &= self.upload_file(os.path.join(source_folder, f), f"{destination_folder}/{f}")
+            result &= self.upload_file(os.path.join(source_folder, f), os.path.join(destination_folder, f))
         return result
 
     def get_file_system_name(self) -> str:
         return f"{self.__container_client.container_name}@{self.__container_client.account_name}"
+
+    @staticmethod
+    def normalize_path(folder_path: str) -> str:
+        """Normalize folder path to ensure it ends with a "/" and does not start with a "/" """
+        folder_path = folder_path if folder_path.endswith("/") else folder_path + "/"
+        folder_path = folder_path.lstrip("/")
+        return folder_path

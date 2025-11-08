@@ -1,7 +1,7 @@
 [tool.black]
 line-length = 120
 target-version = ["py39"]
-include = "demo/"
+include = "(demo/|test/)"
 extend-exclude = '''
 (
     __pycache__           # ignore cache dirs
@@ -16,22 +16,22 @@ extend-exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 120
-src_paths = ["demo"]
+src_paths = ["demo","test"]
 
 [tool.pylint]
 # Pylint reads config from pyproject.toml since v2.5+
 [tool.pylint.'FORMAT']
 max-line-length = 120
 [tool.pylint.'MAIN']
-init-hook = 'import sys; sys.path.append("demo")'
+init-hook = 'import sys; sys.path.extend(["demo", "test"])'
 recursive = true
 jobs = 0
 disable = ["C0114","C0115","C0116","W0511","R0903","W1203","R0913","R0917","W0718"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 strict = true
-files = ["demo"]
+files = ["demo","test"]
 exclude = '''
 (
     __pycache__
@@ -50,4 +50,4 @@ max-line-length = 120
 extend-exclude = []
 extend-select = []
 # restrict linting to /demo
-paths = ["demo"]
+paths = ["demo","test"]

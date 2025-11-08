@@ -25,6 +25,7 @@ class DNARayCarrier(DNACarrier):
             f"{success}/{total} successfully moved from {self.source_name}:{source_folder} "
             f"to {self.dest_name}:{dest_folder}"
         )
+        ray.shutdown()
 
     @ray.remote
     def remote_move(self, source_file: FileInfo, dest_folder: str) -> bool:

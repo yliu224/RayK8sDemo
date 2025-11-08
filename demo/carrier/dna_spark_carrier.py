@@ -37,6 +37,7 @@ class DNASparkCarrier(DNACarrier):
         )
         if failed_count != 0:
             failed_df.show(truncate=False)
+        spark.stop()
 
     @staticmethod
     def get_spark_session() -> SparkSession:

@@ -8,8 +8,8 @@ clean:
 lint:
 	black .
 	isort .
-	flake8 demo
-	pylint demo
+	flake8 demo test
+	pylint demo test
 	mypy
 
 JOB_NAME ?= test-job
@@ -36,21 +36,29 @@ deploy_spark:
 		-e "s~{{JOB_NAME}}~$(JOB_NAME)~g" \
 		k8s/spark-job.yaml | kubectl apply -f -; \
 
+py_test:
+	command -v azurite >/dev/null 2>&1 || npm install -g azurite; \
+	pytest test/	
+
 init_linux:
 	# Install python environment
 	sudo apt update; \
-	sudo apt install python3.12-venv; \
-	sudo apt install python3-pip; \
+	sudo apt install -y nodejs npm; \
+	sudo apt install -y python3.12-venv; \
+	sudo apt install -y python3-pip; \
+	sudo apt install -y openjdk-17-jdk; \
 	python3 -m venv .venv; \
 	sleep 2; \
 	. .venv/bin/activate; \
 	pip3 install -r requirements.txt; \
 	pip3 install -r lint_tool.txt; \
+	pip3 install -r test/requirements.txt; \
 
 	# Install developer tools(docker + azure cli)
 	sudo snap install docker; \
 	curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash; \
 
+	grep -q 'JAVA_HOME' ~/.bashrc || echo -e "\nexport JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64\nexport PATH=$$JAVA_HOME/bin:$$PATH" >> ~/.bashrc
 
 install_k8s:
 	# Install kind
@@ -99,6 +107,7 @@ install_secrets:
 	kubectl create secret generic dxpy-api-secret --from-literal=DX_API_TOKEN=$(DX_API_TOKEN); \
 
 install_azurite:
+	sudo npm install -g azurite; \
 	kubectl apply -f k8s/azure_emulator/azurite-pvc.yaml; \
 	kubectl apply -f k8s/azure_emulator/azurite-service.yaml; \
 	kubectl apply -f k8s/azure_emulator/azurite-deployment.yaml; \

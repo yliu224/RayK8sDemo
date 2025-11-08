@@ -1,4 +1,5 @@
 import json
+import os
 from dataclasses import asdict, dataclass, field
 
 
@@ -12,7 +13,7 @@ class FileInfo:
 
     def __post_init__(self) -> None:
         # Compute file_path after the object is created
-        object.__setattr__(self, "file_path", f"{self.folder}/{self.file_name}")
+        object.__setattr__(self, "file_path", os.path.join(self.folder, self.file_name))
 
     def to_json(self) -> str:
         return json.dumps(asdict(self))
